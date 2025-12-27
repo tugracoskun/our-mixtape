@@ -3,30 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --bg-forest: #2E4131;    /* Orman Yeşili */
-  --fg-bone: #E3DFD5;      /* Kemik Rengi */
-  --glass-border: rgba(227, 223, 213, 0.15);
+  --bg-forest: #2E4131;    /* Arka Plan: Orman Yeşili */
+  --fg-bone: #E3DFD5;      /* Yazılar: Kemik Rengi */
+  --glass-border: rgba(255, 255, 255, 0.1); 
 }
 
 body {
-  background-color: var(--bg-forest); /* Burası artık çalışacak! */
+  background-color: var(--bg-forest);
   color: var(--fg-bone);
   overflow-x: hidden;
 }
 
-/* Glass Card */
+/* KESİN ÇÖZÜM: Arka planı direkt #121212 yapıyoruz */
 .glass-card {
-  background-color: rgba(46, 65, 49, 0.6); 
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background-color: #121212; /* Transparanlık yok, net renk */
   border: 1px solid var(--glass-border);
   border-radius: 32px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); /* Gölgeyi belirginleştir */
 }
 
 /* Inputlar */
 input[type="text"], textarea {
-  background-color: rgba(0, 0, 0, 0.2); 
+  background-color: #1A1A1A; /* Inputlar da koyu olsun */
   border: 1px solid var(--glass-border);
   color: var(--fg-bone);
   border-radius: 20px;
@@ -37,7 +35,7 @@ input[type="text"], textarea {
 
 input[type="text"]:focus, textarea:focus {
   border-color: var(--fg-bone);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: #222;
 }
 
 /* Slider */
@@ -51,7 +49,7 @@ input[type=range] {
 input[type=range]::-webkit-slider-track {
   width: 100%;
   height: 6px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
 }
 
@@ -62,8 +60,8 @@ input[type=range]::-webkit-slider-thumb {
   border-radius: 50%;
   background: var(--fg-bone);
   margin-top: -9px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  border: 4px solid #2E4131;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border: 4px solid #121212;
   transition: transform 0.2s;
 }
 

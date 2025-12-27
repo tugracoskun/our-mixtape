@@ -6,8 +6,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // URL'den veriyi çek (Single Source of Truth)
   const activePlaylistId = searchParams.get("playlist");
 
   const [inputUrl, setInputUrl] = useState("");
@@ -45,10 +43,9 @@ function HomeContent() {
       {!activePlaylistId && (
         <div className="flex-1 w-full flex flex-col items-center justify-center">
           
-          {/* Giriş Kartı */}
+          {/* Giriş Kartı - bg kodları temizlendi, rengi glass-card (#121212) verecek */}
           <div className="w-full max-w-[440px] glass-card p-10 flex flex-col items-center text-center gap-10 animate-in fade-in zoom-in duration-500">
             
-            {/* Logo / Başlık */}
             <div className="space-y-3">
               <h1 className="text-5xl font-bold tracking-tighter text-[#E3DFD5]">
                 Bizim Kaset.
@@ -58,7 +55,6 @@ function HomeContent() {
               </p>
             </div>
             
-            {/* Input Alanı */}
             <div className="w-full space-y-4">
               <input 
                 type="text" 
@@ -70,7 +66,7 @@ function HomeContent() {
               
               <button 
                 onClick={handleLoadPlaylist}
-                className="w-full bg-[#E3DFD5] text-[#2E4131] font-bold py-5 rounded-[20px] hover:bg-white hover:scale-[1.01] active:scale-95 transition-all text-sm uppercase tracking-widest shadow-xl"
+                className="w-full bg-[#E3DFD5] text-[#121212] font-bold py-5 rounded-[20px] hover:bg-white hover:scale-[1.01] active:scale-95 transition-all text-sm uppercase tracking-widest shadow-xl"
               >
                 Odaya Gir
               </button>
@@ -87,7 +83,7 @@ function HomeContent() {
       {activePlaylistId && (
         <div className="w-full max-w-[850px] flex flex-col gap-6 animate-in slide-in-from-bottom-6 duration-700">
           
-          {/* HEADER (Sticky) */}
+          {/* HEADER - bg kodları temizlendi */}
           <header className="glass-card h-[72px] px-8 flex items-center justify-between sticky top-6 z-50">
             <div className="flex items-center gap-3">
                <div className="w-3 h-3 rounded-full bg-[#E3DFD5]"></div>
@@ -99,7 +95,7 @@ function HomeContent() {
                 onClick={copyInviteLink}
                 className={`text-[11px] font-bold px-5 py-2.5 rounded-full transition-all border ${
                   copied 
-                  ? "bg-[#E3DFD5] text-[#2E4131] border-[#E3DFD5]" 
+                  ? "bg-[#E3DFD5] text-[#121212] border-[#E3DFD5]" 
                   : "bg-transparent text-[#E3DFD5] border-[#E3DFD5]/20 hover:border-[#E3DFD5]"
                 }`}
               >
@@ -107,7 +103,7 @@ function HomeContent() {
               </button>
               <button 
                 onClick={handleExit}
-                className="text-[11px] font-bold px-5 py-2.5 rounded-full bg-black/20 text-[#E3DFD5]/60 hover:text-[#E3DFD5] hover:bg-black/40 transition-colors"
+                className="text-[11px] font-bold px-5 py-2.5 rounded-full bg-[#1A1A1A] text-[#E3DFD5]/60 hover:text-[#E3DFD5] border border-transparent hover:border-[#E3DFD5]/20 transition-colors"
               >
                 ÇIKIŞ
               </button>
@@ -122,14 +118,13 @@ function HomeContent() {
                 height="100%" 
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
                 loading="lazy" 
-                className="rounded-[24px] border-none bg-[#202e23]"
+                className="rounded-[24px] border-none bg-[#121212]"
               ></iframe>
           </div>
 
-          {/* PUANLAMA ALANI (Simetrik Grid) */}
+          {/* PUANLAMA ALANI - bg kodları temizlendi */}
           <div className="glass-card p-8 md:p-10 relative overflow-hidden">
             
-            {/* Başlık */}
             <div className="text-center mb-10">
               <h2 className="text-2xl font-bold text-[#E3DFD5] inline-block border-b-2 border-[#E3DFD5]/20 pb-2 px-4">
                 Puanlama
@@ -138,7 +133,7 @@ function HomeContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
               
-              {/* SOL: Sliderlar */}
+              {/* Sliderlar */}
               <div className="space-y-8 flex flex-col justify-center">
                  {['Lyrics', 'Beat', 'Vibe'].map((label, idx) => {
                    const key = label.toLowerCase() as keyof typeof ratings;
@@ -159,14 +154,14 @@ function HomeContent() {
                 })}
               </div>
 
-              {/* SAĞ: Yorum ve Buton */}
+              {/* Form */}
               <div className="flex flex-col gap-6">
                 <textarea 
-                    className="w-full h-full min-h-[140px] p-5 resize-none bg-black/10 focus:bg-black/20 rounded-[24px] placeholder:text-[#E3DFD5]/30 text-sm leading-relaxed"
+                    className="w-full h-full min-h-[140px] p-5 resize-none bg-[#1A1A1A] focus:bg-[#222] rounded-[24px] placeholder:text-[#E3DFD5]/30 text-sm leading-relaxed"
                     placeholder="Şarkı hakkındaki düşüncelerin..."
                   ></textarea>
                 
-                <button className="w-full bg-[#E3DFD5] hover:bg-white text-[#2E4131] font-bold py-4 rounded-[20px] shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 text-sm uppercase tracking-widest">
+                <button className="w-full bg-[#E3DFD5] hover:bg-white text-[#121212] font-bold py-4 rounded-[20px] shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 text-sm uppercase tracking-widest">
                   Gönder
                 </button>
               </div>
