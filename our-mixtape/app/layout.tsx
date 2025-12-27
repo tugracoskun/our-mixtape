@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google"; // Modern, geometrik font
+import { Outfit } from "next/font/google"; 
 import "./globals.css";
 
 const modernFont = Outfit({ 
@@ -8,7 +8,7 @@ const modernFont = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Bizim Kaset | Duo Session",
+  title: "Bizim Kaset",
   description: "Birlikte Müzik Puanlama",
 };
 
@@ -19,7 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
-      <body className={`${modernFont.className} antialiased bg-[#09090b] text-white overflow-hidden`}>
+      {/* DEĞİŞİKLİK: bg-[#09090b] ve text-white SİLİNDİ. Rengi globals.css verecek. */}
+      <body className={`${modernFont.className} antialiased`}>
         {children}
       </body>
     </html>
