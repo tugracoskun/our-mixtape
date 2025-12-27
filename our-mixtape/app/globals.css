@@ -3,52 +3,69 @@
 @tailwind utilities;
 
 :root {
-  --background: #09090b; /* Çok koyu gri (neredeyse siyah) */
-  --foreground: #fafafa;
-  --accent: #f472b6; /* Cute Pink */
+  --bg-dark: #09090b;
+  --panel-bg: rgba(24, 24, 27, 0.6);
+  --accent-pink: #ec4899;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif; /* Modern sans-serif font */
+  background-color: var(--bg-dark);
+  color: #ffffff;
+  overflow-x: hidden; /* Yatay kaymayı engelle */
 }
 
-/* Glassmorphism Kutular */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
+/* Modern Glass Panel */
+.glass-card {
+  background-color: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
 }
 
-/* Modern Slider Stili */
+/* Input Alanları */
+input[type="text"], textarea {
+  background-color: #18181b; 
+  border: 1px solid #27272a;
+  color: white;
+  border-radius: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 16px; /* Mobilde zoom yapmayı engeller */
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: var(--accent-pink);
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15);
+  background-color: #27272a;
+}
+
+/* Slider Özelleştirme */
 input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
+  -webkit-appearance: none; 
   background: transparent;
+  height: 24px; /* Tıklama alanı genişletildi */
+  cursor: pointer;
 }
 
 input[type=range]::-webkit-slider-track {
   width: 100%;
   height: 6px;
-  cursor: pointer;
-  background: #27272a;
+  background: #3f3f46;
   border-radius: 999px;
 }
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 18px;
-  width: 18px;
+  height: 22px;
+  width: 22px;
   border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  margin-top: -6px; /* Thumb'ı ortalamak için */
-  box-shadow: 0 0 10px rgba(244, 114, 182, 0.4);
-  transition: transform 0.1s;
+  background: var(--accent-pink);
+  margin-top: -8px;
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.6);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 input[type=range]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+  transform: scale(1.3);
 }

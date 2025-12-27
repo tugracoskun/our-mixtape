@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { Special_Elite } from "next/font/google"; 
+import { Outfit } from "next/font/google"; // Modern, geometrik font
 import "./globals.css";
 
-// Retro Daktilo Fontu
-const retroFont = Special_Elite({ 
-  weight: "400", 
+const modernFont = Outfit({ 
   subsets: ["latin"],
-  variable: "--font-retro" 
+  weight: ["300", "400", "600", "800"] 
 });
 
 export const metadata: Metadata = {
-  title: "Bizim Kaset",
-  description: "Spotify Playlist Rating",
+  title: "Bizim Kaset | Duo Session",
+  description: "Birlikte Müzik Puanlama",
 };
 
 export default function RootLayout({
@@ -21,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
-      <body className={`${retroFont.className} antialiased bg-[#f4f1ea] text-[#2c2c2c]`}>
+      <body className={`${modernFont.className} antialiased bg-[#09090b] text-white overflow-hidden`}>
         {children}
       </body>
     </html>
