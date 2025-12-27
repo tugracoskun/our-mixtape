@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #f4f1ea;
+  --ink: #2c2c2c;
+}
+
+body {
+  background-color: var(--paper);
+  /* Hafif grenli kağıt dokusu */
+  background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+  color: var(--ink);
+}
+
+/* Polaroid Efekti */
+.polaroid {
+  background: white;
+  padding: 1rem 1rem 3.5rem 1rem;
+  box-shadow: 2px 3px 15px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.polaroid:hover {
+  transform: scale(1.02) rotate(-1deg);
+  box-shadow: 4px 6px 20px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+/* Bant Efekti (Washi Tape) */
+.tape {
+  background-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  backdrop-filter: blur(2px);
+  border-left: 1px dashed rgba(0,0,0,0.1);
+  border-right: 1px dashed rgba(0,0,0,0.1);
+}
