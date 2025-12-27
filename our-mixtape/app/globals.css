@@ -3,37 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --paper: #f4f1ea;
-  --ink: #2c2c2c;
+  --background: #09090b; /* Çok koyu gri (neredeyse siyah) */
+  --foreground: #fafafa;
+  --accent: #f472b6; /* Cute Pink */
 }
 
 body {
-  background-color: var(--paper);
-  /* Hafif grenli kağıt dokusu */
-  background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
-  color: var(--ink);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif; /* Modern sans-serif font */
 }
 
-/* Polaroid Efekti */
-.polaroid {
-  background: white;
-  padding: 1rem 1rem 3.5rem 1rem;
-  box-shadow: 2px 3px 15px rgba(0,0,0,0.15);
-  transition: all 0.3s ease;
-  position: relative;
+/* Glassmorphism Kutular */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
 }
 
-.polaroid:hover {
-  transform: scale(1.02) rotate(-1deg);
-  box-shadow: 4px 6px 20px rgba(0,0,0,0.2);
-  z-index: 10;
+/* Modern Slider Stili */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
 }
 
-/* Bant Efekti (Washi Tape) */
-.tape {
-  background-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  backdrop-filter: blur(2px);
-  border-left: 1px dashed rgba(0,0,0,0.1);
-  border-right: 1px dashed rgba(0,0,0,0.1);
+input[type=range]::-webkit-slider-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: #27272a;
+  border-radius: 999px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  margin-top: -6px; /* Thumb'ı ortalamak için */
+  box-shadow: 0 0 10px rgba(244, 114, 182, 0.4);
+  transition: transform 0.1s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
 }
