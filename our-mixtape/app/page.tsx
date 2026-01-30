@@ -177,7 +177,7 @@ function HomeContent() {
               {activePlaylistId && (
                 <button
                   onClick={() => { navigator.clipboard.writeText(window.location.href); setIsMenuOpen(false); }}
-                  className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-[#E3DFD5]/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 rounded-lg"
+                  className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-all flex items-center gap-3 rounded-lg"
                 >
                   <span>Copy Link</span>
                 </button>
@@ -186,18 +186,18 @@ function HomeContent() {
               {activePlaylistId && (
                 <button
                   onClick={handleSavePlaylist}
-                  className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-[#E3DFD5]/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 rounded-lg"
+                  className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-all flex items-center gap-3 rounded-lg"
                 >
                   <Icons.Save />
                   <span>{isPlaylistSaved ? 'Remove from Dashboard' : 'Save to Dashboard'}</span>
                 </button>
               )}
 
-              <div className="h-px bg-white/5 mx-2 my-1"></div>
+              <div className="h-px bg-white/10 mx-2 my-1"></div>
 
               <button
                 onClick={() => router.push('/')}
-                className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-red-500/70 hover:text-red-500 hover:bg-red-500/5 transition-all flex items-center gap-3 rounded-lg"
+                className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all flex items-center gap-3 rounded-lg"
               >
                 <span>Return to Lobby</span>
               </button>
