@@ -54,7 +54,7 @@ function HomeContent() {
     if (inputUrl.includes("playlist/")) {
       id = inputUrl.split("playlist/")[1].split("?")[0];
     } else if (inputUrl.length > 5) {
-      id = inputUrl;
+      id = id = inputUrl;
     } else {
       alert("Geçerli bir link değil!");
       return;
@@ -101,7 +101,7 @@ function HomeContent() {
       {/* --- GİRİŞ EKRANI --- */}
       {!activePlaylistId && (
         <div className="flex-1 w-full flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-[440px] glass-card p-8 md:p-12 flex flex-col items-center text-center gap-10 animate-in fade-in zoom-in duration-700">
+          <div className="w-full max-w-[440px] glass-card p-8 md:p-12 flex flex-col items-center text-center gap-10 animate-in fade-in zoom-in duration-700 rounded-none">
             <div className="space-y-4">
               <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-[#E3DFD5] leading-none">Bizim<br />Kaset.</h1>
               <p className="text-[#E3DFD5]/40 text-[10px] font-bold uppercase tracking-[0.4em]">Estetik Müzik Odası</p>
@@ -110,13 +110,13 @@ function HomeContent() {
               <input
                 type="text"
                 placeholder="Spotify playlist linki..."
-                className="w-full px-6 py-5 text-center"
+                className="w-full px-6 py-5 text-center rounded-none"
                 value={inputUrl}
                 onChange={(e) => setInputUrl(e.target.value)}
               />
               <button
                 onClick={handleLoadPlaylist}
-                className="w-full bg-[#E3DFD5] text-[#121212] font-bold py-5 rounded-[20px] hover:bg-white transition-all text-sm uppercase tracking-widest shadow-xl"
+                className="w-full bg-[#E3DFD5] text-[#121212] font-bold py-5 rounded-none hover:bg-white transition-all text-sm uppercase tracking-widest shadow-xl"
               >
                 Odaya Gir
               </button>
@@ -129,46 +129,56 @@ function HomeContent() {
       {activePlaylistId && (
         <div className="w-full max-w-[850px] flex flex-col gap-6 animate-in slide-in-from-bottom-6 duration-700 relative">
 
-          <header className="glass-card h-[72px] px-6 flex items-center justify-between sticky top-6 z-50 bg-[#121212]/95 backdrop-blur-xl">
+          <header className="glass-card h-[72px] px-6 flex items-center justify-between sticky top-6 z-50 bg-[#121212]/95 backdrop-blur-xl rounded-none">
             <div className="w-10"></div> {/* Left spacer for symmetry */}
             <h1 className="text-xl font-bold tracking-tight text-[#E3DFD5]">Bizim Kaset</h1>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-[#E3DFD5] hover:text-white transition-colors">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2.5 text-[#E3DFD5] hover:text-white transition-all bg-white/5 hover:bg-white/10 rounded-none border border-white/5 hover:border-white/20"
+              >
                 <Icons.MoreVertical />
               </button>
               {isMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-[#1A1A1A] border border-white/10 rounded-[20px] shadow-2xl overflow-hidden p-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <button onClick={() => { navigator.clipboard.writeText(window.location.href); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-[#E3DFD5] hover:bg-white/10 rounded-xl transition-colors">Davet Linki Kopyala</button>
-                  <button onClick={() => router.push("/")} className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-900/20 rounded-xl transition-colors">Çıkış Yap</button>
+                <div className="absolute right-0 top-full mt-3 w-56 bg-[#1A1A1A] border border-white/10 rounded-none shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden p-2 z-50 animate-in fade-in slide-in-from-top-3 duration-300 backdrop-blur-2xl">
+                  <button onClick={() => { navigator.clipboard.writeText(window.location.href); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3.5 text-sm text-[#E3DFD5] hover:bg-white/10 rounded-none transition-all flex items-center justify-between group">
+                    <span>Davet Linki Kopyala</span>
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">📎</span>
+                  </button>
+                  <div className="h-[1px] bg-white/5 my-1 mx-2"></div>
+                  <button onClick={() => router.push("/")} className="w-full text-left px-4 py-3.5 text-sm text-red-400 hover:bg-red-500/10 rounded-none transition-all">Çıkış Yap</button>
                 </div>
               )}
             </div>
           </header>
 
-          <div className="glass-card p-2 md:p-3 h-[400px] md:h-[480px]">
+          <div className="glass-card p-2 md:p-3 h-[400px] md:h-[480px] rounded-[32px]">
             <iframe src={`https://open.spotify.com/embed/playlist/${activePlaylistId}?utm_source=generator&theme=0`} width="100%" height="100%" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" className="rounded-[24px] border-none bg-[#121212]"></iframe>
           </div>
 
-          <div className="glass-card p-6 md:p-10 relative overflow-hidden flex flex-col gap-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-white/5 pb-6">
-              <div className="flex items-center gap-3 text-[#E3DFD5]">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>
-                <span className="text-xs md:text-sm font-bold tracking-[0.3em] uppercase">Track #{String(trackNum).padStart(2, '0')}</span>
+          <div className="glass-card p-6 md:p-10 relative overflow-hidden flex flex-col gap-10 rounded-none">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-5 border-b border-white/5 pb-8">
+              <div className="flex items-center gap-4 bg-white/5 px-5 py-2.5 rounded-none border border-white/5">
+                <span className="w-2.5 h-2.5 rounded-none bg-red-500 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.6)]"></span>
+                <span className="text-xs md:text-sm font-black tracking-[0.4em] uppercase text-[#E3DFD5]">TRACK #{String(trackNum).padStart(2, '0')}</span>
               </div>
-              <button onClick={handleFinish} className="text-[10px] font-bold text-[#E3DFD5]/50 hover:text-[#E3DFD5] transition-all border border-white/10 px-4 py-2 rounded-full hover:border-white/40 hover:bg-white/5">
+              <button
+                onClick={handleFinish}
+                className="text-[11px] font-black text-[#E3DFD5] hover:text-white transition-all border border-white/20 px-6 py-2.5 rounded-none hover:border-[#E3DFD5] bg-white/5 hover:bg-white/10 uppercase tracking-[0.2em]"
+              >
                 ANALİZİ BİTİR
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start lg:items-center">
-              <div className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="space-y-10">
                 {['Lyrics', 'Beat', 'Vibe'].map((label, idx) => {
                   const key = label.toLowerCase() as keyof typeof ratings;
                   return (
-                    <div key={idx} className="space-y-3">
-                      <div className="flex justify-between items-end">
-                        <span className="text-[10px] font-black tracking-[0.2em] text-[#E3DFD5]/40 uppercase">{label}</span>
-                        <span className="text-lg font-bold text-[#E3DFD5] tabular-nums leading-none">{ratings[key]}</span>
+                    <div key={idx} className="space-y-4">
+                      <div className="flex justify-between items-end mb-1">
+                        <span className="text-[11px] font-black tracking-[0.3em] text-[#E3DFD5]/50 uppercase">{label}</span>
+                        <span className="text-2xl font-black text-[#E3DFD5] tabular-nums leading-none tracking-tighter">{ratings[key]}</span>
                       </div>
                       <input
                         type="range"
@@ -176,24 +186,24 @@ function HomeContent() {
                         max="10"
                         value={ratings[key]}
                         onChange={(e) => setRatings({ ...ratings, [key]: Number(e.target.value) })}
-                        className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-[#E3DFD5] transition-all"
+                        className="w-full h-1.5 bg-white/5 rounded-none appearance-none cursor-pointer accent-[#E3DFD5] transition-all"
                       />
                     </div>
                   )
                 })}
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5 pt-4 lg:pt-0">
                 <button
                   onClick={handleSaveTrack}
-                  className="group w-full bg-[#E3DFD5] hover:bg-white text-[#121212] font-black py-5 rounded-[22px] shadow-2xl transition-all active:scale-[0.98] text-[11px] uppercase tracking-[0.3em] flex items-center justify-center gap-3"
+                  className="group w-full bg-[#E3DFD5] hover:bg-white text-[#121212] font-black py-6 rounded-none shadow-[0_20px_40px_-10px_rgba(227,223,213,0.3)] transition-all active:scale-[0.96] text-xs uppercase tracking-[0.4em] flex items-center justify-center gap-4 border border-transparent hover:border-white"
                 >
                   <span>Şarkıyı Kaydet</span>
-                  <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+                  <span className="group-hover:translate-x-2 transition-transform inline-block text-lg">→</span>
                 </button>
-                <div className="flex items-center justify-center gap-2 text-[9px] text-[#E3DFD5]/30 uppercase tracking-[0.2em] font-medium">
-                  <div className="h-[1px] w-4 bg-white/10"></div>
+                <div className="flex items-center justify-center gap-3 text-[10px] text-[#E3DFD5]/40 uppercase tracking-[0.3em] font-bold">
+                  <div className="h-[1px] w-6 bg-white/10"></div>
                   <span>Sıradakine Geçilir</span>
-                  <div className="h-[1px] w-4 bg-white/10"></div>
+                  <div className="h-[1px] w-6 bg-white/10"></div>
                 </div>
               </div>
             </div>
@@ -217,20 +227,19 @@ function HomeContent() {
 
             <button
               onClick={() => setShowResult(false)}
-              className="absolute -top-14 right-0 md:-right-12 text-white/50 hover:text-white transition-colors bg-white/10 p-3 rounded-full backdrop-blur-md"
+              className="absolute -top-14 right-0 md:-right-12 text-white/50 hover:text-white transition-colors bg-white/10 p-3 rounded-none backdrop-blur-md"
             >
               <Icons.Close />
             </button>
 
             {/* --- GLASS KART TASARIMI (KESKİN) --- */}
-            {/* rounded-[40px] SİLİNDİ -> rounded-none YAPILDI */}
             <div
               ref={cardRef}
               className="relative overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 text-white p-8 md:p-10 font-sans shadow-[0_0_80px_rgba(0,0,0,0.8)] rounded-none"
             >
               {/* Dekoratif Işıklar */}
-              <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-purple-500/20 rounded-full blur-[60px] pointer-events-none"></div>
-              <div className="absolute bottom-[-50px] left-[-50px] w-40 h-40 bg-green-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+              <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-purple-500/20 rounded-none blur-[60px] pointer-events-none"></div>
+              <div className="absolute bottom-[-50px] left-[-50px] w-40 h-40 bg-green-500/20 rounded-none blur-[60px] pointer-events-none"></div>
 
               {/* Header */}
               <div className="relative mb-10 text-center">

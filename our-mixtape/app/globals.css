@@ -20,7 +20,8 @@ body {
 .glass-card {
   background-color: #121212;
   border: 1px solid var(--glass-border);
-  border-radius: 32px;
+  border-radius: 0;
+  /* Keskin köşeler */
   box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -31,7 +32,8 @@ textarea {
   background-color: #1A1A1A;
   border: 1px solid var(--glass-border);
   color: var(--fg-bone);
-  border-radius: 24px;
+  border-radius: 0;
+  /* Keskin köşeler */
   outline: none;
   font-size: 15px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -62,14 +64,16 @@ input[type=range]::-webkit-slider-track {
   width: 100%;
   height: 4px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 999px;
+  border-radius: 0;
+  /* Keskin köşeler */
 }
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 20px;
   width: 20px;
-  border-radius: 50%;
+  border-radius: 0;
+  /* Keskin köşeler */
   background: var(--fg-bone);
   margin-top: -8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
