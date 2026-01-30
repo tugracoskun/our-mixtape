@@ -4,26 +4,31 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import html2canvas from "html2canvas";
 
-// --- İKONLAR ---
+// --- CUSTOM ICONS ---
 const Icons = {
-  MoreVertical: () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none" />
+  Close: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M18 6L6 18M6 6l12 12" />
     </svg>
   ),
-  Close: () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+  ArrowRight: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M5 12h14" />
+      <path d="M12 5l7 7-7 7" />
+    </svg>
   ),
-  Download: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+  Save: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <polyline points="17 21 17 13 7 13 7 21" />
+      <polyline points="7 3 7 8 15 8" />
+    </svg>
   ),
-  Check: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-  ),
-  Star: () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+  Trash: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
   )
 };
 
@@ -32,20 +37,38 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const activePlaylistId = searchParams.get("playlist");
 
-  const username = "MÜZİK GURMESİ";
-
+  // State
   const [inputUrl, setInputUrl] = useState("");
   const [trackNum, setTrackNum] = useState(1);
-  const [rating, setRating] = useState(1);
+  const [rating, setRating] = useState(5);
   const [history, setHistory] = useState<any[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+
+  // Storage State
+  const [savedPlaylists, setSavedPlaylists] = useState<string[]>([]);
+  const [isPlaylistSaved, setIsPlaylistSaved] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // Initialize Storage
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('bizim_kaset_playlists') || '[]');
+    setSavedPlaylists(saved);
+  }, []);
+
+  useEffect(() => {
+    if (activePlaylistId && savedPlaylists.includes(activePlaylistId)) {
+      setIsPlaylistSaved(true);
+    } else {
+      setIsPlaylistSaved(false);
+    }
+  }, [activePlaylistId, savedPlaylists]);
+
+  // Click Outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -56,148 +79,272 @@ function HomeContent() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuRef]);
 
-  const handleLoadPlaylist = () => {
-    let id = "";
-    if (inputUrl.includes("playlist/")) {
-      id = inputUrl.split("playlist/")[1].split("?")[0];
-    } else if (inputUrl.length > 5) {
-      id = inputUrl;
-    } else {
-      alert("Geçerli bir link değil!");
-      return;
+  // Handlers
+  const handleLoadPlaylist = (idOverride?: string) => {
+    let id = idOverride || "";
+    if (!id) {
+      if (inputUrl.includes("playlist/")) {
+        id = inputUrl.split("playlist/")[1].split("?")[0];
+      } else if (inputUrl.length > 5) {
+        id = inputUrl;
+      } else {
+        alert("Please enter a valid Spotify Playlist URL");
+        return;
+      }
     }
     router.push(`/?playlist=${id}`);
   };
 
+  const handleSavePlaylist = () => {
+    if (!activePlaylistId) return;
+
+    let newList;
+    if (isPlaylistSaved) {
+      newList = savedPlaylists.filter(id => id !== activePlaylistId);
+    } else {
+      newList = [activePlaylistId, ...savedPlaylists];
+    }
+
+    setSavedPlaylists(newList);
+    localStorage.setItem('bizim_kaset_playlists', JSON.stringify(newList));
+    setIsPlaylistSaved(!isPlaylistSaved);
+  };
+
+  const handleRemovePlaylist = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const newList = savedPlaylists.filter(pid => pid !== id);
+    setSavedPlaylists(newList);
+    localStorage.setItem('bizim_kaset_playlists', JSON.stringify(newList));
+  }
+
   const handleSaveTrack = () => {
     if (isTransitioning) return;
-
     setIsTransitioning(true);
-
-    // Create new record
-    const newTrack = { id: trackNum, average: rating };
+    const newTrack = { id: trackNum, score: rating };
     setHistory(prev => [...prev, newTrack]);
 
-    // Visual feedback for transition
+    // Smooth transition simulation
     setTimeout(() => {
       setTrackNum(prev => prev + 1);
-      setRating(1);
+      setRating(5); // Reset to neutral
       setIsTransitioning(false);
-    }, 400); // Animation duration
+    }, 600);
   };
 
   const handleFinish = () => {
-    if (history.length === 0) {
-      alert("Henüz hiç şarkı puanlamadın!");
-      return;
-    }
+    if (history.length === 0) return;
     setShowResult(true);
   };
 
   const downloadCard = async () => {
     if (cardRef.current) {
-      const canvas = await html2canvas(cardRef.current, { backgroundColor: '#18181b', scale: 3 });
+      const canvas = await html2canvas(cardRef.current, { backgroundColor: '#050505', scale: 3 });
       const data = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = data;
-      link.download = 'bizim-kaset-overall.png';
+      link.download = `bizim-kaset-session-${new Date().toISOString().slice(0, 10)}.png`;
       link.click();
     }
   };
 
-  const sortedHistory = [...history].sort((a, b) => b.average - a.average);
+  const sortedHistory = [...history].sort((a, b) => b.score - a.score);
 
   return (
-    <main className="min-h-screen flex flex-col items-center py-10 px-4 selection:bg-[#E3DFD5] selection:text-[#2E4131] bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#050505] text-[#E3DFD5] selection:bg-[#E3DFD5] selection:text-black font-sans antialiased overflow-hidden flex flex-col">
 
-      {/* --- GİRİŞ EKRANI --- */}
-      {!activePlaylistId && (
-        <div className="flex-1 w-full flex flex-col items-center justify-center p-6 sm:p-10">
-          <div className="w-full max-w-[440px] bg-[#121212] p-10 md:p-14 flex flex-col items-center text-center gap-12 border border-white/5 animate-in fade-in zoom-in duration-1000 rounded-none relative overflow-hidden">
-            <div className="space-y-5 relative z-10 text-center w-full">
-              <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-[#E3DFD5] leading-[0.8]">Bizim<br />Kaset.</h1>
-              <div className="h-1.5 w-16 bg-[#E3DFD5] mx-auto"></div>
-              <p className="text-[#E3DFD5]/20 text-[10px] font-black uppercase tracking-[0.6em]">The Ultimate Scorecard</p>
-            </div>
-            <div className="w-full space-y-4 relative z-10">
-              <input
-                type="text"
-                placeholder="SPOTIFY PLAYLIST URL"
-                className="w-full px-6 py-6 text-center bg-white/5 border border-white/5 text-[#E3DFD5] placeholder:text-white/10 text-[11px] font-black tracking-[0.2em] focus:ring-1 focus:ring-[#E3DFD5]/20 focus:bg-white/10 transition-all outline-none rounded-none !rounded-none appearance-none"
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-              />
-              <button
-                onClick={handleLoadPlaylist}
-                className="w-full bg-[#E3DFD5] text-[#0A0A0A] font-black py-6 hover:bg-white transition-all text-[11px] uppercase tracking-[0.5em] shadow-2xl active:scale-[0.98] rounded-none !rounded-none"
-              >
-                Enter the Room
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* HEADER (MENU SELECTOR) */}
+      <header className="fixed top-0 left-0 right-0 h-24 flex items-center px-8 sm:px-12 z-50 pointer-events-none">
 
-      {/* --- PLAYLIST MODU --- */}
-      {activePlaylistId && (
-        <div className="w-full max-w-[800px] flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 relative">
-
-          <header className="flex items-center justify-between h-[50px] px-1">
-            <div className="flex flex-col">
-              <h1 className="text-xl font-black tracking-tighter text-[#E3DFD5] leading-none">BIZIM KASET</h1>
-              <span className="text-[7px] font-black tracking-[0.4em] text-white/20 uppercase mt-1">Digital Record Room</span>
+        <div className="pointer-events-auto relative" ref={menuRef}>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="group flex items-center gap-4 py-3 pr-5 pl-2 hover:bg-white/5 rounded-full transition-all cursor-pointer backdrop-blur-sm border border-transparent hover:border-white/5"
+          >
+            <div className="flex flex-col gap-1.5 w-6 relative">
+              <span className={`h-0.5 bg-[#E3DFD5] w-full transition-all duration-300 ease-out origin-center ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`h-0.5 bg-[#E3DFD5] w-2/3 transition-all duration-300 ease-out group-hover:w-full ${isMenuOpen ? 'opacity-0 translate-x-3' : ''}`} />
+              <span className={`h-0.5 bg-[#E3DFD5] w-full transition-all duration-300 ease-out origin-center ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
             </div>
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-[#E3DFD5]/40 hover:text-white transition-all p-2 bg-transparent"
-              >
-                <Icons.MoreVertical />
-              </button>
-              {isMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-[#121212] border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] p-1 z-[100] animate-in fade-in slide-in-from-top-2 duration-300">
-                  <button onClick={() => { navigator.clipboard.writeText(window.location.href); setIsMenuOpen(false); }} className="w-full text-left px-5 py-3.5 text-[9px] font-bold uppercase tracking-widest text-[#E3DFD5]/60 hover:text-white hover:bg-white/5 transition-all">Copy Invite URL</button>
-                  <div className="h-[1px] bg-white/5 mx-4"></div>
-                  <button onClick={() => router.push("/")} className="w-full text-left px-5 py-3.5 text-[9px] font-bold uppercase tracking-widest text-red-500/60 hover:text-red-500 hover:bg-red-500/5 transition-all">Exit Room</button>
-                </div>
+            {/* Optional Label */}
+            <span className={`text-[10px] font-bold tracking-[0.2em] text-[#E3DFD5] uppercase transition-all duration-500 overflow-hidden whitespace-nowrap ${isMenuOpen ? 'max-w-0 opacity-0' : 'max-w-[100px] opacity-100'}`}>
+              Menu
+            </span>
+          </button>
+
+          {isMenuOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-[#0F0F0F] border border-white/10 p-2 shadow-2xl flex flex-col gap-1 z-50 animate-in slide-in-from-top-4 fade-in duration-300 rounded-2xl overflow-hidden backdrop-blur-xl">
+
+              {activePlaylistId && (
+                <button
+                  onClick={() => { navigator.clipboard.writeText(window.location.href); setIsMenuOpen(false); }}
+                  className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-[#E3DFD5]/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 rounded-lg"
+                >
+                  <span>Copy Link</span>
+                </button>
               )}
+
+              {activePlaylistId && (
+                <button
+                  onClick={handleSavePlaylist}
+                  className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-[#E3DFD5]/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 rounded-lg"
+                >
+                  <Icons.Save />
+                  <span>{isPlaylistSaved ? 'Remove from Dashboard' : 'Save to Dashboard'}</span>
+                </button>
+              )}
+
+              <div className="h-px bg-white/5 mx-2 my-1"></div>
+
+              <button
+                onClick={() => router.push('/')}
+                className="w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-red-500/70 hover:text-red-500 hover:bg-red-500/5 transition-all flex items-center gap-3 rounded-lg"
+              >
+                <span>Return to Lobby</span>
+              </button>
             </div>
-          </header>
+          )}
+        </div>
+      </header>
 
-          <div className="flex flex-col gap-6">
-            <div className="bg-[#121212] p-2 rounded-[32px] border border-white/5 shadow-2xl">
-              <iframe
-                src={`https://open.spotify.com/embed/playlist/${activePlaylistId}?utm_source=generator&theme=0`}
-                width="100%"
-                height="320"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                className="rounded-[24px] border-none bg-[#000]"
-              ></iframe>
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 flex flex-col pt-24 relative overflow-y-auto w-full h-full">
+
+        {/* --- LANDING STATE --- */}
+        {!activePlaylistId && (
+          <div className="min-h-full flex flex-col justify-center gap-12 p-6 pb-20 max-w-4xl mx-auto w-full">
+
+            {/* Hero Section */}
+            <div className="flex flex-col items-center justify-center gap-12 relative z-10 py-12">
+              <div className="space-y-6 text-center">
+                <span className="text-xs font-bold tracking-[0.4em] text-white/30 uppercase">Bizim Kaset / Audio Unit</span>
+                <h1 className="text-7xl sm:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#E3DFD5] to-[#E3DFD5]/40 leading-[0.8] text-glow">
+                  LISTEN.<br />RATE.<br />REPEAT.
+                </h1>
+              </div>
+
+              <div className="w-full max-w-md mx-auto relative group">
+                <input
+                  type="text"
+                  placeholder="PASTE SPOTIFY PLAYLIST URL"
+                  value={inputUrl}
+                  onChange={(e) => setInputUrl(e.target.value)}
+                  className="w-full bg-transparent border-b border-white/20 py-4 text-center text-sm font-mono tracking-widest uppercase text-[#E3DFD5] focus:border-[#E3DFD5] transition-colors outline-none placeholder:text-white/10"
+                  onKeyDown={(e) => e.key === 'Enter' && handleLoadPlaylist()}
+                />
+                <button
+                  onClick={() => handleLoadPlaylist()}
+                  className="absolute right-0 top-0 bottom-0 text-[#E3DFD5]/40 hover:text-[#E3DFD5] transition-colors px-2"
+                >
+                  <Icons.ArrowRight />
+                </button>
+              </div>
             </div>
 
-            <div className={`bg-[#121212] border border-white/5 p-6 md:p-8 transition-all duration-500 ${isTransitioning ? 'opacity-0 scale-[0.98] translate-y-2' : 'opacity-100 scale-100 translate-y-0'}`}>
-              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-8 items-center sm:items-stretch">
-
-                <div className="flex flex-col items-center sm:items-start justify-between py-1">
-                  <div className="space-y-1 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-red-500 animate-pulse"></div>
-                      <span className="text-[9px] font-black tracking-[0.3em] text-white/20 uppercase">Track in process</span>
-                    </div>
-                    <h2 className="text-3xl font-black text-[#E3DFD5] tracking-tighter">TRACK <span className="text-white/10">#</span>{String(trackNum).padStart(2, '0')}</h2>
-                  </div>
-
-                  <div className="flex flex-col items-center sm:items-start mt-4 sm:mt-0">
-                    <span className="text-[8px] font-black tracking-[0.4em] text-white/20 uppercase mb-2">Instant Score</span>
-                    <div className="text-7xl font-black text-[#E3DFD5] leading-none tabular-nums tracking-tighter">
-                      {rating}<span className="text-white/10">.0</span>
-                    </div>
-                  </div>
+            {/* Saved Playlists Section */}
+            {savedPlaylists.length > 0 && (
+              <div className="w-full animate-in slide-in-from-bottom-8 fade-in duration-700 delay-200">
+                <div className="flex items-center gap-4 mb-6 opacity-40">
+                  <div className="h-px bg-white flex-1"></div>
+                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase">Saved Collections</span>
+                  <div className="h-px bg-white flex-1"></div>
                 </div>
 
-                <div className="w-full flex flex-col justify-between gap-8 pt-2">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {savedPlaylists.map((pid) => (
+                    <div
+                      key={pid}
+                      onClick={() => handleLoadPlaylist(pid)}
+                      className="group bg-[#0F0F0F] border border-white/5 hover:border-white/20 p-4 flex items-center gap-4 cursor-pointer transition-all hover:bg-white/5 rounded-xl shadow-lg relative"
+                    >
+                      <div className="w-16 h-16 bg-[#050505] rounded-lg overflow-hidden shrink-0 filter grayscale group-hover:grayscale-0 transition-all">
+                        <iframe
+                          src={`https://open.spotify.com/embed/playlist/${pid}?utm_source=generator&theme=0`}
+                          width="100%" height="100%" className="w-full h-full pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity"
+                        />
+                      </div>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="text-xs font-bold tracking-widest text-[#E3DFD5] truncate group-hover:text-white transition-colors">MIXTAPE</span>
+                        <span className="text-[9px] font-mono text-white/30 truncate">ID: {pid}</span>
+                      </div>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                        <button
+                          onClick={(e) => handleRemovePlaylist(e, pid)}
+                          className="p-2 hover:text-red-500 text-white/20 transition-colors"
+                          title="Forget Playlist"
+                        >
+                          <Icons.Trash />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- ACTIVE SESSION STATE --- */}
+        {activePlaylistId && (
+          <div className="flex-1 h-full w-full max-w-[1600px] mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 animate-in fade-in duration-1000">
+
+            {/* COLUMN 1: PLAYER */}
+            <div className="lg:col-span-5 flex flex-col h-full justify-center order-1">
+              <div className="relative w-full aspect-square max-h-[600px] bg-[#0F0F0F] border border-white/5 p-4 shadow-2xl group transition-all duration-500 hover:border-white/10 rounded-[40px]">
+                {/* Status Light */}
+                <div className="absolute -top-3 left-8 flex items-center gap-3 bg-[#050505] px-4 py-1.5 border border-white/10 rounded-full z-10">
+                  <div className="w-1.5 h-1.5 bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
+                  <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/40">Connected</span>
+                </div>
+
+                <iframe
+                  src={`https://open.spotify.com/embed/playlist/${activePlaylistId}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="100%"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  className="w-full h-full bg-[#000] rounded-[32px]"
+                ></iframe>
+              </div>
+            </div>
+
+            {/* COLUMN 2: CONTROLS */}
+            <div className="lg:col-span-7 flex flex-col justify-center order-2 h-full py-4 lg:py-12">
+              <div className={`flex flex-col gap-12 lg:gap-20 transition-all duration-500 ease-out ${isTransitioning ? 'opacity-0 translate-y-8 scale-95 blur-sm' : 'opacity-100 translate-y-0 scale-100 blur-0'}`}>
+
+                {/* TRACK INFO */}
+                <div className="space-y-4 text-center lg:text-left">
+                  <div className="flex items-center justify-center lg:justify-start gap-4 text-white/20">
+                    <span className="text-6xl sm:text-8xl font-black tracking-tighter opacity-10">
+                      {String(trackNum).padStart(2, '0')}
+                    </span>
+                    <div className="h-px flex-1 bg-white/5 hidden lg:block"></div>
+                    <span className="text-xs font-mono tracking-widest uppercase">Now Playing</span>
+                  </div>
+
+                  <h2 className="text-4xl sm:text-6xl font-black tracking-tighter uppercase leading-[0.9] text-glow">
+                    Track <br /> Evaluation
+                  </h2>
+                </div>
+
+                {/* RATING MECHANISM */}
+                <div className="space-y-8 bg-[#0F0F0F] p-8 sm:p-12 rounded-[48px] border border-white/5 shadow-2xl relative overflow-hidden">
+                  {/* Decorative Glow */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.01] blur-[80px] pointer-events-none"></div>
+
+                  <div className="flex justify-between items-end border-b border-white/10 pb-6 relative z-10">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-white/30 mb-2">Score</span>
+                      <span className="text-7xl sm:text-8xl font-black tracking-tighter leading-none tabular-nums">
+                        {rating}<span className="text-4xl text-white/10">.0</span>
+                      </span>
+                    </div>
+                    <div className="text-right hidden sm:block">
+                      <span className="text-[10px] font-mono tracking-widest text-[#E3DFD5]/50 block mb-1">SCALE ASSESSMENT</span>
+                      <div className="text-xs font-bold text-white/80">1 - 10 RANGE</div>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full h-16 flex items-center z-10">
                     <input
                       type="range"
                       min="1"
@@ -205,115 +352,126 @@ function HomeContent() {
                       step="1"
                       value={rating}
                       onChange={(e) => setRating(Number(e.target.value))}
-                      className="w-full h-1.5 bg-white/5 appearance-none cursor-pointer accent-[#E3DFD5]"
+                      className="relative z-10 w-full opacity-0 cursor-pointer h-full"
+                      onMouseEnter={() => setHoverRating(rating)}
+                      onMouseLeave={() => setHoverRating(null)}
                     />
-                    <div className="flex justify-between text-[8px] font-black tracking-widest text-white/10 uppercase">
-                      <span>Low Tier</span>
-                      <span>Classic</span>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col gap-3">
-                    <button
-                      onClick={handleSaveTrack}
-                      disabled={isTransitioning}
-                      className="w-full bg-[#E3DFD5] text-[#0A0A0A] font-black py-5 uppercase tracking-[0.3em] text-[10px] hover:bg-white transition-all active:scale-[0.98] shadow-xl group border border-transparent"
-                    >
-                      Rate & Next <span className="inline-block group-hover:translate-x-1 transition-transform ml-1">→</span>
-                    </button>
-                    <button
-                      onClick={handleFinish}
-                      className="w-full text-[8px] font-black text-white/20 hover:text-white/40 tracking-[0.4em] uppercase py-2 transition-all border border-transparent hover:border-white/5"
-                    >
-                      Analyze My Session
-                    </button>
+                    {/* Custom Visual Slider */}
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 flex justify-between items-center pointer-events-none w-full px-1">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                        <div
+                          key={num}
+                          className={`transition-all duration-300 flex flex-col items-center gap-2 group
+                                            ${num === rating ? 'scale-110' : 'scale-100'}
+                                            `}
+                        >
+                          <div className={`w-0.5 transition-all duration-300 ${num <= rating ? 'h-8 bg-[#E3DFD5]' : 'h-4 bg-white/10'}`}></div>
+                          <span className={`text-[9px] font-mono ${num === rating ? 'text-[#E3DFD5] opacity-100' : 'text-white/20 opacity-0'}`}>{num}</span>
+                        </div>
+                      ))}
+                      <div className="absolute top-1/2 w-full h-[1px] bg-white/5 -z-10"></div>
+                    </div>
                   </div>
                 </div>
+
+                {/* ACTIONS */}
+                <div className="flex flex-col sm:flex-row gap-6 mt-2">
+                  <button
+                    onClick={handleSaveTrack}
+                    className="flex-1 bg-[#E3DFD5] text-black h-20 sm:h-24 flex items-center justify-between px-8 hover:bg-white transition-all group active:scale-[0.99] rounded-2xl shadow-lg"
+                  >
+                    <span className="text-xs font-black tracking-[0.3em] uppercase">Confirm Score</span>
+                    <Icons.ArrowRight />
+                  </button>
+
+                  <button
+                    onClick={handleFinish}
+                    className="sm:w-32 h-20 sm:h-24 border border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-all text-white/30 hover:text-white rounded-2xl"
+                  >
+                    <span className="text-[10px] font-black tracking-widest uppercase">Finish</span>
+                  </button>
+                </div>
+
               </div>
             </div>
+
           </div>
-        </div>
-      )}
+        )}
 
-      {/* --- RESULT POPUP (SHARP) --- */}
+      </main>
+
+      {/* --- RESULTS OVERLAY --- */}
       {showResult && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#000]/90 backdrop-blur-xl animate-in fade-in duration-700" onClick={() => setShowResult(false)}></div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050505]/95 backdrop-blur-md animate-in fade-in duration-500">
+          <div className="max-w-2xl w-full flex flex-col gap-6 animate-in slide-in-from-bottom-8 duration-700 max-h-[90vh] overflow-y-auto">
 
-          <div className="relative z-10 w-full max-w-lg animate-in slide-in-from-bottom-12 duration-700">
-            <button
-              onClick={() => setShowResult(false)}
-              className="absolute -top-16 right-0 text-white/40 hover:text-white transition-colors bg-white/5 p-4"
-            >
-              <Icons.Close />
-            </button>
+            <div className="flex justify-between items-center sticky top-0 bg-[#050505]/90 py-4 z-20">
+              <h2 className="text-lg font-bold tracking-[0.2em] uppercase">Session Report</h2>
+              <button onClick={() => setShowResult(false)} className="hover:text-white text-white/50"><Icons.Close /></button>
+            </div>
 
-            <div ref={cardRef} className="bg-[#121212] border border-white/10 p-10 md:p-14 text-white shadow-[0_0_100px_rgba(0,0,0,1)]">
-              {/* Poster Header */}
-              <div className="text-center mb-16 space-y-4">
-                <span className="text-[10px] font-black tracking-[0.6em] text-white/20 uppercase">Mixtape Appraisal</span>
-                <h1 className="text-6xl font-black uppercase tracking-tighter leading-[0.8] mb-6 drop-shadow-2xl">
-                  PLAYLIST<br />RANKINGS
-                </h1>
-                <div className="h-1.5 w-16 bg-[#E3DFD5] mx-auto"></div>
+            <div ref={cardRef} className="bg-[#0F0F0F] border border-white/10 p-12 aspect-[4/5] sm:aspect-auto sm:min-h-[600px] flex flex-col relative overflow-hidden">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[200px] font-black text-white/[0.02] pointer-events-none select-none tracking-tighter">
+                BK
               </div>
 
-              {/* Ranking Grid */}
-              <div className="space-y-1">
-                {sortedHistory.slice(0, 5).map((track, index) => (
-                  <div key={track.id} className="flex justify-between items-center py-6 border-b border-white/5 group hover:bg-white/[0.02] px-2 transition-colors">
+              <div className="flex justify-between items-start mb-16 relative z-10">
+                <div>
+                  <h1 className="text-4xl font-black tracking-tighter uppercase mb-2">Mixtape<br />Appraisal</h1>
+                  <div className="w-12 h-1 bg-[#E3DFD5]"></div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-1">Date</div>
+                  <div className="text-sm font-mono text-[#E3DFD5]">{new Date().toLocaleDateString('tr-TR')}</div>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-1 relative z-10">
+                <div className="flex justify-between pb-2 border-b border-white/10 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-white/30">
+                  <span>Ranking</span>
+                  <span>Score</span>
+                </div>
+                {sortedHistory.slice(0, 10).map((track, i) => (
+                  <div key={track.id} className="flex justify-between items-center py-3 border-b border-white/5 group">
                     <div className="flex items-center gap-6">
-                      <span className="text-2xl font-black text-white/10 w-8 tabular-nums">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1">Track Record</span>
-                        <span className="text-xl font-black tracking-tighter uppercase">#TRACK {String(track.id).padStart(2, '0')}</span>
-                      </div>
+                      <span className="font-mono text-white/30 w-6">{(i + 1).toString().padStart(2, '0')}</span>
+                      <span className="font-bold tracking-tight text-lg">TRACK {String(track.id).padStart(2, '0')}</span>
                     </div>
-                    <div className="text-3xl font-black text-[#E3DFD5] drop-shadow-md tabular-nums">
-                      {track.average}<span className="text-[#E3DFD5]/20">.0</span>
-                    </div>
+                    <div className="text-xl font-mono font-bold text-[#E3DFD5]">{track.score}.0</div>
                   </div>
                 ))}
               </div>
 
-              {/* Poster Footer */}
-              <div className="mt-16 pt-12 border-t border-white/10 flex justify-between items-end">
-                <div className="flex flex-col">
-                  <span className="text-[9px] uppercase text-white/20 tracking-[0.3em] font-black mb-2">Tracks Logged</span>
-                  <span className="text-5xl font-black leading-none text-[#E3DFD5]">{history.length}</span>
+              <div className="mt-12 pt-8 border-t border-white/20 flex justify-between items-center relative z-10">
+                <div className="flex gap-4 items-center">
+                  <div className="w-8 h-8 bg-[#E3DFD5] rounded-full"></div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] uppercase tracking-widest text-white/40">Verified By</span>
+                    <span className="text-xs font-bold uppercase tracking-widest">Muzik Gurmesi</span>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-4 bg-white/5 p-4 border border-white/5">
-                  <div className="w-10 h-10 bg-[#E3DFD5] text-black flex items-center justify-center font-black text-sm">
-                    {username.charAt(0)}
-                  </div>
-                  <div className="flex flex-col pr-2">
-                    <span className="text-[8px] uppercase text-white/20 font-black tracking-widest">Logged By</span>
-                    <span className="text-[11px] font-black tracking-widest uppercase text-white">{username}</span>
-                  </div>
+                <div className="text-right">
+                  <span className="text-4xl font-black text-[#E3DFD5]">{history.length}</span>
+                  <span className="text-[9px] uppercase tracking-widest text-white/40 block">Total Tracks</span>
                 </div>
               </div>
             </div>
 
-            <button
-              onClick={downloadCard}
-              className="w-full mt-8 bg-white text-[#0A0A0A] py-6 font-black text-[11px] uppercase tracking-[0.4em] transition-all hover:bg-[#E3DFD5] active:scale-95 shadow-2xl"
-            >
-              Export Results Image 📸
+            <button onClick={downloadCard} className="w-full bg-[#E3DFD5] h-16 text-black font-black uppercase tracking-[0.2em] hover:bg-white transition-all text-sm rounded-lg mb-8">
+              Export Image Asset
             </button>
           </div>
         </div>
       )}
 
-    </main>
+    </div>
   );
 }
 
 export default function Home() {
   return (
-    <Suspense fallback={<div className="h-screen w-full flex items-center justify-center text-[#E3DFD5]">Waiting...</div>}>
+    <Suspense fallback={null}>
       <HomeContent />
     </Suspense>
   );
